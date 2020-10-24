@@ -34,11 +34,12 @@ class Recipe(models.Model):
     # image =
     description = models.CharField(max_length=1000)
     ingredient_in = models.ManyToManyField('IngredientIncomposition')
-    eating=(
+
+    tag=(
         ('завтрак','завтрак'),
         ('обед','обед'),
         ('ужин','ужин'),
-    )
+    )  ## Заменить на выбор из многих
 
     time = models.IntegerField(default=10)
     slug = models.SlugField(unique=True)
@@ -49,17 +50,10 @@ class Recipe(models.Model):
 
 class IngredientIncomposition(models.Model):
     """
-    Info about composition
+    Info about composition in recipe
     """
     ingredient = models.ForeignKey(Ingredient,on_delete=models.DO_NOTHING)
-    # recip = models.ManyToManyField(Recipe)
-    # ingredient = models.OneToOneField('Ingredient', on_delete=models.DO_NOTHING)
-    # recipe = models.ForeignKey(Recipe, on_delete=models.DO_NOTHING)
     quantity = models.CharField(max_length=10)
-    # name = models.CharField(max_length=100)
-    # description = models.CharField(max_length=1000)
-
-
 
     def __str__(self):
         return self.ingredient.name

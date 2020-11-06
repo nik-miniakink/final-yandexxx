@@ -21,8 +21,15 @@ class Ingredient(models.Model):
     units_of_measurement = models.CharField(choices=measurement, max_length=20)
 
     def __str__(self):
-        return self.name
+        return f'{self.name}({self.units_of_measurement})'
 
+class Tags(models.Model):
+    name = models.CharField(max_length=10, null=False, default='')
+    slug = models.SlugField(max_length=15, unique=True, default='', null=False)
+    style = models.CharField(max_length=15, default='purple')
+
+    def __str__(self):
+        return self.name
 
 
 class Recipe(models.Model):
@@ -31,17 +38,12 @@ class Recipe(models.Model):
     """
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=200)
-    # image =
+    image = models.ImageField(upload_to='irecipes/%d_%m_%Y/')
     description = models.CharField(max_length=1000)
     ingredient_in = models.ManyToManyField('IngredientIncomposition')
-
-    tag=(
-        ('завтрак','завтрак'),
-        ('обед','обед'),
-        ('ужин','ужин'),
-    )  ## Заменить на выбор из многих
-
-    time = models.IntegerField(default=10)
+    tags = models.ManyToManyField('Tags')
+    pub_date = models.DateTimeField(auto_now_add=True)
+    time = models.PositiveSmallIntegerField(default=10)
     slug = models.SlugField(unique=True)
 
     def __str__(self):
@@ -59,7 +61,8 @@ class IngredientIncomposition(models.Model):
         return self.ingredient.name
 
 
-
-
+class Follow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follower")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
 
 

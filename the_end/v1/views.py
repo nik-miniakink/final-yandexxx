@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .form import  RecipeCreateForm
 from django.contrib.auth.decorators import login_required
 
-
+tags_list={}
 def you_shall_not_pass(func):
     """
     Проверяет является ли юзер обратится к своему профилю
@@ -18,26 +18,43 @@ def you_shall_not_pass(func):
         return func(request, *args, **kwargs)
     return wrapper
 
-# done
+
 def index(request):
     """
     Отрисовывает главную страницу и показывает по 6 постов на странице
+    При наличии выбраных тэгов производить фильтрафию рецептов
+
     :param request:
     :return:
     """
-    recipe_list = Recipe.objects.order_by("-pub_date").all()
-    # count = post_list.count
+
+    tag = request.GET.get("tag_list")
+    if tag is not None:
+        if tag not in tags_list:
+            tags_list[tag]=tag
+        else:
+            del tags_list[tag]
+
+    if len(tags_list) > 0:
+        recipe_list = Recipe.objects.filter(tags__slug__in=tags_list).order_by("-pub_date").all()
+    else:
+        recipe_list = Recipe.objects.order_by("-pub_date").all()
 
     paginator = Paginator(recipe_list, 6)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
+    tags = Tags.objects.all()
+
     return render(request, 'indexAuth.html', {
         'page': page,
         'paginator': paginator,
-        'posts': recipe_list,
-        'page_number': page_number
+        'recipes': recipe_list,
+        'page_number': page_number,
+        'tags': tags,
+        'tags_list': tags_list,
     })
+
 # done
 def recipe_view(request, recipe_id):
     """
@@ -67,7 +84,7 @@ def author_list(request, user_id):
     return render(request, 'authorRecipe.html',{
         'page': page,
         'paginator': paginator,
-        'posts': recipe_list,
+        'recipes': recipe_list,
         'page_number': page_number
     })
 

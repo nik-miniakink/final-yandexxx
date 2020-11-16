@@ -1,18 +1,4 @@
-{% extends "base.html" %}
-{% load cache %}
-{% load static %}
-
-
-{% block title %} Авторские рецепты {% endblock %}
-
-
-{% block static %}
-    <link rel="stylesheet" href="./pages/index.css">
-{% endblock %}
-
-
-{% block content %}
-    <main class="main container">
+<main class="main container">
 <!--Вывод шапки с рецептами и тагами доделать активация-->
         <div class="main__header">
             <h1 class="main__title">Рецепты</h1>
@@ -20,8 +6,9 @@
                 <ul class="tags">
                 {% for tag in tags %}
                     <li class="tags__item">
-                    <a id="breakfast" class="tags__checkbox tags__checkbox_style_{{tag.style}} active"
-                       href="{{tag.url}}"></a>
+                    <a id="tags" class="tags__checkbox tags__checkbox_style_{{tag.style}} {% if tag.slug in tags_list %} tags__checkbox_active {% endif %}"
+                       href="?tag_list={{tag.slug}}">
+                    </a>
                     <span class="tags__label">{{tag}}</span>
                     </li>
                 {% endfor %}
@@ -63,18 +50,3 @@
             {% endfor %}
     </div>
 </main>
-{% endblock %}
-
-
-{% include "paginator.html"%}
-
-
-{% block java-script %}
-    <script src="{% static 'js/components/MainCards.js' %}"></script>
-    <script src="{% static 'js/components/Purchases.js' %}"></script>
-    <script src="{% static 'js/config/config.js' %}"></script>
-    <script src="{% static 'js/components/CardList.js' %}"></script>
-    <script src="{% static 'js/components/Header.js' %}"></script>
-    <script src="{% static 'js/api/Api.js' %}"></script>
-    <script src="{% static 'js/pages/indexNotAuth.js' %}"></script>
-{% endblock %}

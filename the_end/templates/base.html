@@ -8,33 +8,34 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}Заголовок страницы{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'pages/index.css' %}">
-<!--    {% block static %}-->
 
-<!--    {% endblock %}-->
+    {% block static %}
+
+    {% endblock %}
 
 
 </head>
+
 <body class="body">
 
+
     {% include 'nav.html'%}
-        <main class="main container">
-            {% block content %}Контент{% endblock %}
+
+    {% block content %}
+            Контент
+    {% endblock %}
 
 
-</main>>
-            <footer class="footer">
-        <div class="footer__container container">
-            <a href="{% url 'index' %}" class="footer__brand link">{{ setting_site.name }}</a>
-            {% if setting_site.social_vk != '' %}
-            <a href="{{ setting_site.social_vk }}" class="footer__brand link">Я вКонтакте</a>
-            {% endif %}
-            <ul class="footer__items">
-                <li class="footer__item"><a href="/" class="footer__link link">Об авторе </a></li>
-                <li class="footer__item"><a href="/" class="footer__link link">Технологии</a></li>
-            </ul>
-        </div>
-    </footer>
 
+<footer class="footer">
+    <div class="footer__container container">
+        <a href="#" class="footer__brand link">Продуктовый помощник</a>
+        <ul class="footer__items">
+            <li class="footer__item"><a href="#" class="footer__link link">Об авторе </a></li>
+            <li class="footer__item"><a href="#" class="footer__link link">Технологии</a></li>
+        </ul>
+    </div>
+</footer>
 
     {% block java-script %}
 

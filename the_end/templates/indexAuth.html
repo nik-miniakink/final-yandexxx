@@ -1,70 +1,28 @@
 {% extends "base.html" %}
 {%load cache%}
-{% block title %} Последние обновления {% endblock %}
-
 {% load static %}
 
+{% block title %}  Последние рецепты {% endblock %}
+
+
 {% block static %}
-<link rel="stylesheet" href="{% static 'pages/index.css' %}">
-<link rel="stylesheet" href="{% static 'pages/shopList.css' %}">
+    <link rel="stylesheet" href="./pages/index.css">
 {% endblock %}
 
 {% block content %}
-{% cache 1 index_page page_number %}
-{% load static%}
-{% for recipe in page %}
-        <div class="card-list">
-
-        <div class="card" data-id="120">
-            {% load thumbnail %}
-                {% thumbnail recipe.image "364x240" crop="center" upscale=True as im %}
-                    <a href="{% url 'recipe_view' recipe.id %}" class="link" target="_blank"><img src="{{ im.url }}"
-                    alt="{{recipe.name}}" class="card__image"></a>
-            {% endthumbnail %}
-
-            <div class="card__body">
-                <a class="card__title link" href="{% url 'recipe_view' recipe.id %}" target="_blank">{{ recipe.name}}</a>
-
-
-                <ul class="card__items">
-                     {% for tag in recipe.tags.all %}
-                        <li class="card__item"><span class="badge badge_style_{{tag.style}}">{{tag.name}}</span></li>
-                     {% endfor %}
-                </ul>
-                <div class="card__items card__items_column">
-                    <p class="card__text"><span class="icon-time"></span> {{recipe.time}} минут</p>
-                    <p class="card__text"><span class="icon-user"></span> <a href="{% url 'author' recipe.author.id %}" style="color: black">{{recipe.author}}</a></p>
-                </div>
-            </div>
-            <div class="card__footer">
-                <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
-                <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
-            </div>
-        </div>
-
-    </div>
-         {% endfor %}
-
-
-{% endcache %}
-{% include "paginator.html"%}
-
-
+    {% include "item/RecipeItem.html" %}
 {% endblock %}
 
 {% block java-script %}
+    <script src="{% static 'js/components/MainCards.js' %}"></script>
 
-<link rel="stylesheet" href="{% static 'pages/shopList.css' %}">
-  <script src="./static/js/components/MainCards.js"></script>
+    <script src="{% static 'js/components/Purchases.js' %}"></script>
 
-  <script src="./static/js/components/Purchases.js"></script>
-  <script src="./static/js/components/Favorites.js"></script>
+    <script src="{% static 'js/config/config.js' %}"></script>
+    <script src="{% static 'js/components/CardList.js' %}"></script>
+    <script src="{% static 'js/components/Header.js' %}"></script>
 
-  <script src="./static/js/config/config.js"></script>
-  <script src="./static/js/components/CardList.js"></script>
-  <script src="./static/js/components/Header.js"></script>
-
-  <script src="./static/js/api/Api.js"></script>
-  <script src="./templates/indexAuth.js"></script>
+    <script src="{% static 'js/api/Api.js' %}"></script>
+    <script src="{% static 'js/pages/indexAuth.js' %}"></script>
 
 {% endblock %}

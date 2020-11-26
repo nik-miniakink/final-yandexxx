@@ -5,18 +5,19 @@ from .form import  RecipeCreateForm
 from django.contrib.auth.decorators import login_required
 
 tags_list={}
-def you_shall_not_pass(func):
-    """
-    Проверяет является ли юзер обратится к своему профилю
-    :param func:
-    :return:
-    """
-    def wrapper(request, *args, **kwargs):
-        user_profile = get_object_or_404(User, username=kwargs['username'])
-        if request.user == user_profile:
-            return redirect('index')
-        return func(request, *args, **kwargs)
-    return wrapper
+
+# def you_shall_not_pass(func):
+#     """
+#     Проверяет является ли юзер обратится к своему профилю
+#     :param func:
+#     :return:
+#     """
+#     def wrapper(request, *args, **kwargs):
+#         user_profile = get_object_or_404(User, username=kwargs['username'])
+#         if request.user == user_profile:
+#             return redirect('index')
+#         return func(request, *args, **kwargs)
+#     return wrapper
 
 
 def index(request):
@@ -65,29 +66,52 @@ def recipe_view(request, recipe_id):
     :return:
     """
     recipe = get_object_or_404(Recipe, id=recipe_id)
-
+    tags = Tags.objects.filter(recipe=recipe)
+    ings = IngredientIncomposition.objects.filter(recipe=recipe)
     return render(request, 'singlePage.html', {
-        'recipe' : recipe
+        'recipe' : recipe,
+        'tags': tags,
+        'ings' : ings,
     })
-
-
 
 # done
 def author_list(request, user_id):
-    user = get_object_or_404(User,id=user_id)
-    recipe_list = Recipe.objects.filter(author=user)
+
+    tag = request.GET.get("tag_list")
+    if tag is not None:
+        if tag not in tags_list:
+            tags_list[tag] = tag
+        else:
+            del tags_list[tag]
+    user = get_object_or_404(User, id=user_id)
+
+
+    if len(tags_list) > 0:
+        recipe_list = Recipe.objects.filter(tags__slug__in=tags_list, author=user).order_by("-pub_date").all()
+    else:
+        recipe_list = Recipe.objects.filter(author=user).order_by("-pub_date").all()
 
     paginator = Paginator(recipe_list, 6)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    return render(request, 'authorRecipe.html',{
+    tags = Tags.objects.all()
+
+    return render(request, 'indexAuth.html', {
         'page': page,
         'paginator': paginator,
         'recipes': recipe_list,
-        'page_number': page_number
+        'page_number': page_number,
+        'tags': tags,
+        'tags_list': tags_list,
     })
 
+    # return render(request, 'authorRecipe.html',{
+    #     'page': page,
+    #     'paginator': paginator,
+    #     'recipes': recipe_list,
+    #     'page_number': page_number
+    # })
 
 
 
@@ -100,39 +124,45 @@ def follow_index(request):
     :return:
     """
     follow = Follow.objects.filter(user=request.user).all()
-    authors = (item.author.id for item in follow)
-    recipe_list = Recipe.objects.filter(author__in=authors).order_by("-pub_date").all()
+    authors = User.objects.filter(user__in=follow.user)
+    # authors = (item.recipe for item in follow)
 
-    paginator = Paginator(recipe_list, 5)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
+    print(authors)
+    # authors = User.objects.filter(author__in=authors)
+    # recipe_list = Recipe.objects.filter(author__in=authors).order_by("-pub_date").all()
+
+    # paginator = Paginator(authors, 6)
+    # page_number = request.GET.get('page')
+    # page = paginator.get_page(page_number)
 
     return render(request, 'myFollow.html', {
-        'page': page,
-        'paginator': paginator,
-        'recipe': recipe_list,
+        # 'page': page,
+        # 'paginator': paginator,
+        'follow': follow,
+        'authors' :authors,
     })
 
+def recipe_create(request):
+    return render(request, 'formRecipe.html' , {})
 
 
-@you_shall_not_pass
+
 @login_required
-def profile_follow(request, username):
+def profile_follow(request, user_id):
 
-    author = User.objects.get(username=username)
+    author = User.objects.get(id=user_id)
     follow = Follow.objects.filter(author=author) or None
     if follow is None:
         Follow.objects.create(user=request.user, author=author)
 
-    return redirect('profile', username)
+    return redirect('author', user_id)
 
 
-@you_shall_not_pass
 @login_required
-def profile_unfollow(request, username):
-    author = User.objects.get(username=username)
+def profile_unfollow(request, user_id):
+    author = User.objects.get(id=user_id)
     Follow.objects.filter(user=request.user, author=author).delete()
-    return redirect('profile', username)
+    return redirect('author', user_id)
 
 
 

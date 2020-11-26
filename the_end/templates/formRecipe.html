@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %} Создать рецепт {% endblock %}
 {% block content %}
-
+{% load static %}
 {% load user_filters %}
 {% csrf_token %}
 
@@ -133,3 +133,14 @@
 </main>
 
 {% endblock %}
+
+{% block java-script %}
+    <script src="{% static 'js/config/config.js' %}"></script>
+    <script src="{% static '/js/utils/debouncing.js' %}"></script>
+    <script src="{% static 'js/components/Header.js' %}"></script>
+    <script src="{% static 'js/api/Api.js' %}"></script>
+    <script src="{% static 'js/pages/formRecipe.js' %}"></script>
+{% endblock %}
+
+
+

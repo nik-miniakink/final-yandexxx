@@ -11,6 +11,7 @@ urlpatterns = [
     path("author/<int:user_id>/follow/", views.profile_follow, name="follow"),
     path("author/<int:user_id>/unfollow/", views.profile_unfollow, name="unfollow"),
     path("recipe/<int:recipe_id>/", views.recipe_view, name="recipe_view"),
+    path("recipe/new/", views.recipe_create, name="recipe_new"),
     path("", views.index, name="index"),
 
 ]

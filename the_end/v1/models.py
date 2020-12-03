@@ -32,7 +32,7 @@ class Tags(models.Model):
         return self.name
 
 
-class Recipe(models.Model):
+class Recipes(models.Model):
     """
     Info about recipe
     """
@@ -61,10 +61,23 @@ class IngredientIncomposition(models.Model):
         return self.ingredient.name
 
 
+
 class Follow(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="follower")
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following')
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name="follower", verbose_name="Подписчик")
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name="following", verbose_name="Автор постов")
 
-    def __str(self):
-        return self.user
 
+class Favorites(models.Model):
+    fuser = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="favorites_user", verbose_name="Пользователь")
+    recipe = models.ForeignKey(
+        Recipes, on_delete=models.CASCADE, related_name="favorite_recipe", verbose_name="Рецепт в избранном")
+
+
+class ShoppingList(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="shoplist_user", verbose_name="Пользователь")
+    recipe = models.ForeignKey(
+        Recipes, on_delete=models.CASCADE, related_name="shoplist_recipe", verbose_name="Рецепт с продуктами для покупки")

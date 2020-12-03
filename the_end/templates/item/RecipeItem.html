@@ -19,7 +19,7 @@
 
 
         <div class="card-list">
-            {%for recipe in recipes%}
+            {%for recipe in page%}
                 <div class="card" data-id="120">
         {% load thumbnail %}
             {% thumbnail recipe.image "364x240" crop="center" upscale=True as im %}

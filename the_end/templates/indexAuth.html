@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% load cache %}
+
 {% load static %}
 
 {% block title %}  Последние рецепты {% endblock %}
 
 
 {% block static %}
-    <link rel="stylesheet" href="./pages/index.css">
+    <link rel="stylesheet" href="{% static '/pages/index.css' %}">
 {% endblock %}
 
 {% block content %}

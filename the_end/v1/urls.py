@@ -4,8 +4,9 @@ from . import views
 
 
 urlpatterns = [
-    path("ingredients", views.get_ingredients, name="get_ingredients"),
+    path("ingredients", views.get_ingredients_js, name="get_ingredients"),
     path("recipe/new/", views.user_recipe_new, name="recipe_new"),
+    path("recipe/<int:recipe_id>/edit/", views.user_recipe_edit, name="recipe_edit"),
 
     path("follow/", views.follow_index, name="follow_index"),
     path("author/<int:user_id>/",views.author_list, name="author"),
@@ -14,7 +15,7 @@ urlpatterns = [
     # path("recipe/new/", views.recipe_create, name="recipe_new"),
     path("favorite/", views.favorites, name="favorites"),
     path("favorites", views.add_favorite, name="add_favorite"),
-    path("favorites/", views.add_favorite, name="add_favorite"),
+    # path("favorites/", views.add_favorite, name="add_favorite"),
     path("favorites/<int:recipe_id>",
          views.delete_favorite, name="delete_favorite"),
 

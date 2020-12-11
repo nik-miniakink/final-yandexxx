@@ -20,7 +20,7 @@
 
         <div class="card-list">
             {%for recipe in page%}
-                <div class="card" data-id="120">
+                <div class="card" data-id="{{recipe.id}}">
         {% load thumbnail %}
             {% thumbnail recipe.image "364x240" crop="center" upscale=True as im %}
                     <a href="{% url 'recipe_view' recipe.id %}" class="link" target="_blank"><img src="{{ im.url }}"
@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div class="card__footer">
-                <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
+                <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon" data-out></span>Добавить в покупки</button>
                 <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
             </div>
         </div>

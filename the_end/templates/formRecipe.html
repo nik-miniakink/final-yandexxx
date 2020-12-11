@@ -11,7 +11,7 @@
 {% endblock %}
 {% block content %}
 {% csrf_token %}
-<main class="main container">
+<main class="main container" >
     <div class="main__header">
         <h1 class="main__title">Создание рецепта</h1>
     </div>
@@ -25,6 +25,7 @@
                 </div>
             </div>
             <div class="form__group">
+                {% csrf_token %}
                 <p class="form__label">Теги</p>
                 <div class="form__field-group">
                     <div class="tags">
@@ -43,6 +44,7 @@
 
             </div>
             <div class="form__group">
+                {% csrf_token %}
                 <label for="nameIngredient" class="form__label">Ингредиенты</label>
                 <div class="form__field-group">
                     <div class="form__field-group-ingredientes">
@@ -51,7 +53,7 @@
                             <div class="form__dropdown-items"></div>
                         </div>
                         <input type="number" id="cantidad" class="form__input" min="0">
-                        <label for="cantidad" class="form__label" id="cantidadVal">шт.</label>
+                        <label for="cantidad" class="form__label" id="cantidadVal"> шт.</label>
                     </div>
                     <div class="form__field-group-ingredientes-container">
 

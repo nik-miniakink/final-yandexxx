@@ -5,7 +5,7 @@ from .models import Recipes, Ingredient, IngredientIncomposition, Tags
 
 @admin.register(Recipes)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('author', 'name','description','slug')
+    list_display = ('author', 'name','description',)
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
@@ -13,7 +13,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(IngredientIncomposition)
 class IngredientIncompositionAdmin(admin.ModelAdmin):
-    list_display = ('quantity',)
+    list_display = ('recipe','quantity','ingredient')
 
 
 @admin.register(Tags)

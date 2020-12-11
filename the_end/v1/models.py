@@ -37,14 +37,14 @@ class Recipes(models.Model):
     Info about recipe
     """
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, unique=True)
     image = models.ImageField(upload_to='irecipes/%d_%m_%Y/')
     description = models.CharField(max_length=1000)
-    ingredient_in = models.ManyToManyField('IngredientIncomposition')
+    ingredient_in = models.ManyToManyField('IngredientIncomposition',blank=False)
     tags = models.ManyToManyField('Tags')
     pub_date = models.DateTimeField(auto_now_add=True)
     time = models.PositiveSmallIntegerField(default=10)
-    slug = models.SlugField(unique=True)
+    # slug = models.SlugField(unique=True)
 
     def __str__(self):
         return self.name
@@ -54,8 +54,9 @@ class IngredientIncomposition(models.Model):
     """
     Info about composition in recipe
     """
+    recipe = models.ForeignKey(Recipes, on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient,on_delete=models.DO_NOTHING)
-    quantity = models.CharField(max_length=10)
+    quantity = models.SmallIntegerField()
 
     def __str__(self):
         return self.ingredient.name

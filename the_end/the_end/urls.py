@@ -22,12 +22,13 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('about/', views.flatpage, {'url': '/about/'}, name='about'),
+    path('author/', views.flatpage, {'url': '/author/'}, name='about_me'),
+    path('tech/', views.flatpage, {'url': '/tech/'}, name='tech'),
+    path('foodgram/', views.flatpage, {'url': '/foodgram/'}, name='foodgram'),
     path("auth/", include("user.urls")),
     path("auth/", include("django.contrib.auth.urls")),
-    # path("recipes/", include("recipes.urls")),
     path("", include("v1.urls")),
-    # path("", include("actions.urls")),
+
 ]
 
 if settings.DEBUG:

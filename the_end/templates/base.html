@@ -1,5 +1,7 @@
 <!doctype html>
 {% load static %}
+{% csrf_token %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,6 +10,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>{% block title %}Заголовок страницы{% endblock %}</title>
     <link rel="stylesheet" href="{% static '/pages/index.css' %}">
+
 
     {% block static %}
 
@@ -27,15 +30,8 @@
 
     {% include 'paginator.html'%}
 
-<footer class="footer">
-    <div class="footer__container container">
-        <a href="#" class="footer__brand link">Продуктовый помощник</a>
-        <ul class="footer__items">
-            <li class="footer__item"><a href="#" class="footer__link link">Об авторе </a></li>
-            <li class="footer__item"><a href="#" class="footer__link link">Технологии</a></li>
-        </ul>
-    </div>
-</footer>
+
+    {% include 'footer.html'%}
 
     {% block java-script %}
 

@@ -52,12 +52,17 @@ def index(request):
     else:
         recipe_list = Recipes.objects.order_by("-pub_date").all()
 
-    paginator = Paginator(recipe_list, 2)
+    paginator = Paginator(recipe_list, 6)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
     tags = Tags.objects.all()
-
+    # if request.user.:
+    # print(111111111111)
+    # shop_count= ShoppingList.objects.filter(user=request.user)
+    # print(shop_count)
+    # else:
+    #     shop_count=0
     return render(request, 'indexAuth.html', {
         'page': page,
         'paginator': paginator,
@@ -259,16 +264,6 @@ def delete_purchases(request, recipe_id):
         return JsonResponse({'success': True})
 
 
-
-# def get_ingredients_list(request):
-#     ingredients = {}
-#
-#     for key in request.POST:
-#         if key.startswith('nameIngredient'):
-#             ing_number = key[15:]
-#             ingredients[request.POST[key]] = request.POST[f'valueIngredient_{ing_number}']
-#
-#     return ingredients
 def get_ingredients(request):
     ingredients = {}
     for key, ingredient_name in request.POST.items():
@@ -278,7 +273,6 @@ def get_ingredients(request):
                 f'valueIngredient_{_[1]}']
             )
     return ingredients
-
 
 
 def get_ingredients_js(request):
@@ -293,46 +287,29 @@ def get_ingredients_js(request):
     return JsonResponse(data, safe=False)
 
 
-def get_types(data):
-    tags_list = []
-    print(data,'data')
-    for key in data:
-        if data[key] == 'on':
-            tags_list.append(key)
-    return tags_list
-
-
-
-# @login_required
+@login_required
 def user_recipe_new(request):
     user = User.objects.get(username=request.user)
     form = RecipeForm(
         request.POST or None,
         files=request.FILES or None)
 
-    # print(request.POST.get_list['tags'])
-    print(1111111111111111111111111111111111122222)
     if request.method == 'POST':
         ingredients = get_ingredients(request)
         if not ingredients:
             form.add_error(None, 'Добавьте ингредиенты')
         elif form.is_valid():
-            # recipe_tags = get_types(request.POST)
-            # print(recipe_tags,'tags')
-            # print(111111111111111111111111111111111111)
             recipe = form.save(commit=False)
             recipe.author = user
             recipe.save()
-            # print(recipe,'recipe')
-
-
-
+            print(request.POST)
+            recipe_tags_list = request.POST.getlist('tags')
+            for tag_id in recipe_tags_list:
+                tag = Tags.objects.get(id=tag_id)
+                recipe.tags.add(tag)
 
             for ing_name, quantity in ingredients.items():
                 ingredient = get_object_or_404(Ingredient, name=ing_name)
-                # print(ingredient)
-                # print(recipe,'res')
-                # print(type(quantity), quantity)
                 IngredientIncomposition.objects.create(
                     recipe=recipe,
                     ingredient=ingredient,
@@ -348,7 +325,7 @@ def user_recipe_new(request):
         'tags': tags,
     })
 
-
+@login_required
 def user_recipe_edit(request, recipe_id):
 
     recipe = get_object_or_404(Recipes, id=recipe_id)
@@ -360,33 +337,45 @@ def user_recipe_edit(request, recipe_id):
         files=request.FILES or None,
         instance=recipe
     )
-
     if request.method == "POST":
         ingredients = get_ingredients(request)
+        print(11111111111111111111111111111111)
         if not ingredients:
             form.add_error(None, 'Добавьте ингредиенты')
         if form.is_valid():
             form.save()
             IngredientIncomposition.objects.filter(recipes=recipe).delete()
-
-            for ing_name, amount in ingredients.items():
+            print(22222222222222222222222222222222)
+            for ing_name, quantity in ingredients.items():
                 ingredient = get_object_or_404(Ingredient, name=ing_name)
-                recipe_ing = IngredientIncomposition(
+                IngredientIncomposition.objects.create(
+                    recipe=recipe,
                     ingredient=ingredient,
-                    quantity=amount
-                )
-                recipe_ing.save()
+                    quantity=quantity)
+            # form.save_m2m()
             return redirect('recipe_view', recipe_id=recipe.id)
+    else:
+        form = RecipeForm()
+    tags = Tags.objects.all()
+    tags_list = Tags.objects.filter(recipes=recipe)
 
-    # tags = recipe.tags.values_list('name', flat=True)
-    tags= Tags.objects.all()
-    recipe_tag=Tags.objects.filter(recipes=recipe)
     ingredients = IngredientIncomposition.objects.filter(recipes=recipe.id)
 
-    return render(request, 'formRecipe.html', {
+    return render(request, 'formChangeRecipe.html', {
         'form': form,
         'recipe': recipe,
         'tags': tags,
         'ingredients': ingredients,
-        'list_tags':recipe_tag
+        'tags_list':tags_list
     })
+
+
+
+@login_required
+def shopping_list(request):
+    shopping_list = ShoppingList.objects.filter(user=request.user).all()
+    return render(
+        request,
+        'shopping-list.html',
+        {'shopping_list': shopping_list}
+    )

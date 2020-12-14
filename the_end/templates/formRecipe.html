@@ -2,7 +2,6 @@
 {% block title %} Создать рецепт {% endblock %}
 
 
-
 {% block static %}
 {% load static %}
 {% load user_filters %}
@@ -90,14 +89,6 @@
                 </div>
 
             </div>
-            {% if recipe.image != Null %}
-            <div class="form__group">
-                <span class="form__label">Текущее</span>
-                <div class="form__field-group">
-                    <img src="/media/{{ recipe.image }}" alt="" style="width:100px;">
-                </div>
-            </div>
-            {% endif %}
             <div class="form__footer">
                 <button class="button button_style_blue">Создать рецепт</button>
             </div>

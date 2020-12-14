@@ -13,7 +13,7 @@ urlpatterns = [
 
     path("recipe/<int:recipe_id>/", views.recipe_view, name="recipe_view"),
     # path("recipe/new/", views.recipe_create, name="recipe_new"),
-    path("favorite/", views.favorites, name="favorites"),
+    path("favorite/", views.favorite, name="favorites"),
     path("favorites", views.add_favorite, name="add_favorite"),
     # path("favorites/", views.add_favorite, name="add_favorite"),
     path("favorites/<int:recipe_id>",

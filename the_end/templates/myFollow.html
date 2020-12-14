@@ -40,9 +40,6 @@
                 <li class="card-user__item">
                     <a href="{% url 'author' user_id=follow.author.id %}" class="card-user__link link">Еще
                     {{ request|count_recipises:follow.author.id }} рецептов</a>
-<!--                </li>-->
-<!--                    <a href="#" class="card-user__link link">Еще 7 рецептов...</a>-->
-<!--                </li>-->
                 {% endif %}
             </ul>
         </div>

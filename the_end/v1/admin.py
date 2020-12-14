@@ -1,39 +1,40 @@
 from django.contrib import admin
 
-from .models import Recipes, Ingredient, IngredientIncomposition, Tags
+from .models import Recipes, Ingredient, IngredientIncomposition, Tag, \
+    Favorite, Follow, ShoppingList
 
 
 @admin.register(Recipes)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('author', 'name','description',)
+    list_display = ('author', 'name', 'description', 'pub_date')
+    search_fields = ('name',)
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name','units_of_measurement')
+    list_display = ('name', 'units_of_measurement', 'description')
+
 
 @admin.register(IngredientIncomposition)
 class IngredientIncompositionAdmin(admin.ModelAdmin):
-    list_display = ('recipe','quantity','ingredient')
+    list_display = ('quantity', 'ingredient')
+    search_fields = ('name',)
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', 'style', 'slug')
 
 
-@admin.register(Tags)
-class TagsAdmin(admin.ModelAdmin):
-    list_dispaly = ('name', 'slug')
-
-
-from django.contrib import admin
-from .models import Favorites,Follow,ShoppingList
-
-@admin.register(Favorites)
-class FavoritesAdmin(admin.ModelAdmin):
-    list_display = ('id', 'fuser', )
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ('id', 'fuser', 'recipe')
     search_fields = ('fuser', )
 
 
 @admin.register(Follow)
 class FollowAdmin(admin.ModelAdmin):
-    list_display = ('id', 'user', )
+    list_display = ('id', 'user', 'author')
     search_fields = ('user', )
+
 
 @admin.register(ShoppingList)
 class ShoppingListAdmin(admin.ModelAdmin):

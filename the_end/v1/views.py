@@ -1,54 +1,33 @@
-from .models import Recipes, User, Ingredient, IngredientIncomposition, Tags, Follow
-from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404, redirect
-from .form import RecipeForm
-from django.contrib.auth.decorators import login_required
-
 import json
-from django.shortcuts import redirect, render
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.http import require_http_methods
+
 from django.contrib.auth.decorators import login_required
-from .models import Recipes, IngredientIncomposition, Ingredient
-from .models import Follow, Favorites, ShoppingList
+from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, redirect, render
+from django.http import JsonResponse
+
+from .form import RecipeForm
+from .models import User, Tag, Recipes, IngredientIncomposition, \
+    Ingredient, Follow, Favorite, ShoppingList
 
 
-
-tags_list={}
-
-# def you_shall_not_pass(func):
-#     """
-#     Проверяет является ли юзер обратится к своему профилю
-#     :param func:
-#     :return:
-#     """
-#     def wrapper(request, *args, **kwargs):
-#         user_profile = get_object_or_404(User, username=kwargs['username'])
-#         if request.user == user_profile:
-#             return redirect('index')
-#         return func(request, *args, **kwargs)
-#     return wrapper
+tags_list = {}
 
 
 def index(request):
     """
     Отрисовывает главную страницу и показывает по 6 постов на странице
-    При наличии выбраных тэгов производить фильтрафию рецептов
-
-
-    :param request:
-    :return:
+    При наличии выбраных тэгов производит фильтрафию рецептов по тэгу
     """
 
     tag = request.GET.get("tag_list")
     if tag is not None:
         if tag not in tags_list:
-            tags_list[tag]=tag
+            tags_list[tag] = tag
         else:
             del tags_list[tag]
 
     if len(tags_list) > 0:
-        recipe_list = Recipes.objects.filter(tags__slug__in=tags_list).order_by("-pub_date").all()
+        recipe_list = Recipes.objects.filter(tag__slug__in=tags_list).order_by("-pub_date").all()
     else:
         recipe_list = Recipes.objects.order_by("-pub_date").all()
 
@@ -56,13 +35,8 @@ def index(request):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    tags = Tags.objects.all()
-    # if request.user.:
-    # print(111111111111)
-    # shop_count= ShoppingList.objects.filter(user=request.user)
-    # print(shop_count)
-    # else:
-    #     shop_count=0
+    tags = Tag.objects.all()
+
     return render(request, 'indexAuth.html', {
         'page': page,
         'paginator': paginator,
@@ -72,32 +46,27 @@ def index(request):
         'tags_list': tags_list,
     })
 
-# done
+
 def recipe_view(request, recipe_id):
     """
-    Отрисовывает страницу одиночного рецепта
-    :param request:
-    :param recipe_id:
-    :param user_id:
+    Отрисовывает страницу одиночного рецепта по id
     :return:
     """
     recipe = get_object_or_404(Recipes, id=recipe_id)
-    tags = Tags.objects.filter(recipes=recipe)
-    ings = IngredientIncomposition.objects.filter(recipe=recipe)
+    tags = Tag.objects.filter(recipes=recipe)
+    ings = IngredientIncomposition.objects.filter(recipes=recipe)
+
     return render(request, 'singlePage.html', {
-        'recipe' : recipe,
+        'recipe': recipe,
         'tags': tags,
-        'ings' : ings,
+        'ings': ings,
     })
 
-# done
+
 def author_list(request, user_id):
     """
-    Отрисовывает страницу выбранного автора
+    Отрисовывает страницу выбранного автора по id автора
     При наличии выделения тэгов происходит фильтрация
-    :param request:
-    :param user_id:
-    :return:
     """
     tag = request.GET.get("tag_list")
     if tag is not None:
@@ -106,7 +75,6 @@ def author_list(request, user_id):
         else:
             del tags_list[tag]
     user = get_object_or_404(User, id=user_id)
-
 
     if len(tags_list) > 0:
         recipe_list = Recipes.objects.filter(tags__slug__in=tags_list, author=user).order_by("-pub_date").all()
@@ -117,7 +85,7 @@ def author_list(request, user_id):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
-    tags = Tags.objects.all()
+    tags = Tag.objects.all()
 
     return render(request, 'indexAuth.html', {
         'page': page,
@@ -134,46 +102,45 @@ def follow_index(request):
 
     """
     Показывает список рецептов полписанных авторов
-    :param request:
-    :return:
     """
-    myFollow = Follow.objects.filter(
+    my_follow = Follow.objects.filter(
         user_id=request.user.id).order_by("author").all()
-    authors = User.objects.filter(following__in=myFollow)
-    paginator = Paginator(myFollow, 6)
+    authors = User.objects.filter(following__in=my_follow)
+
+    paginator = Paginator(my_follow, 6)
     page_number = request.GET.get("page")
     page = paginator.get_page(page_number)
 
     return render(request, 'myFollow.html', {
         'page': page,
         'paginator': paginator,
-        'follow': myFollow,
-        'authors':authors,
+        'follow': my_follow,
+        'authors': authors,
     })
 
 
 @login_required
-def favorites(request):
-
+def favorite(request):
+    """
+    Отрисовывает страницу избранных рецептов
+    При выбранных тэгах происходит фильтрация
+    :param request:
+    :return:
+    """
     tag = request.GET.get("tag_list")
     if tag is not None:
         if tag not in tags_list:
             tags_list[tag] = tag
         else:
             del tags_list[tag]
-    user = get_object_or_404(User, id=request.user.id)
-
-    favorite_recipes = Favorites.objects.filter(fuser=user)
-
-    recipe_list = Recipes.objects.filter(favorite_recipe__fuser__id=request.user.id).all()
-
 
     if len(tags_list) > 0:
-        recipe_list = Recipes.objects.filter(tags__slug__in=tags_list, favorite_recipe__fuser__id=request.user.id).order_by("-pub_date").all()
+        recipe_list = Recipes.objects.filter(tag__slug__in=tags_list,
+                                             favorite_recipe__fuser__id=request.user.id).order_by("-pub_date").all()
     else:
         recipe_list = Recipes.objects.filter(favorite_recipe__fuser__id=request.user.id).order_by("-pub_date").all()
 
-    tags = Tags.objects.all()
+    tags = Tag.objects.all()
 
     paginator = Paginator(recipe_list, 6)
     page_number = request.GET.get("page")
@@ -193,15 +160,14 @@ def favorites(request):
 def add_favorite(request):
     """
     Добавляет рецепт в избранное
-    :param request:
-    :return:
+
     """
     if request.method == "POST":
         recipe_id = int(json.loads(request.body).get('id'))
-        recipe = get_object_or_404(Recipes,id=recipe_id)
-        created = Favorites.objects.get_or_create(
+        recipe = get_object_or_404(Recipes, id=recipe_id)
+        created = Favorite.objects.get_or_create(
             fuser=request.user, recipe=recipe)
-
+        print(created)
         if not created:
             return JsonResponse({'success': False})
 
@@ -217,8 +183,9 @@ def delete_favorite(request, recipe_id):
     """
     if request.method == "DELETE":
         user = request.user
-        deleted = Favorites.objects.filter(
+        deleted = Favorite.objects.filter(
             fuser_id=user.id, recipe_id=recipe_id).delete()
+        print(deleted)
         return JsonResponse({'success': True}) if deleted else JsonResponse({'success': False})
     else:
         return JsonResponse({'success': False})
@@ -226,22 +193,33 @@ def delete_favorite(request, recipe_id):
 
 @login_required
 def add_subscription(request):
+    """
+    Создает подписку
+    """
     following_id = int(json.loads(request.body).get('id'))
     following = get_object_or_404(User, id=following_id)
+
     if request.user.id != following_id:
         created = Follow.objects.get_or_create(
             user=request.user, author=following)
+
     return JsonResponse({'success': True}) if created else JsonResponse({'success': False})
 
 
 @login_required
 def delete_subscription(request, following_id):
+    """
+    Удаляет подписку
+    """
     deleted = Follow.objects.filter(
         user_id=request.user.id, author_id=following_id).delete()
     return JsonResponse({'success': True}) if deleted else JsonResponse({'success': False})
 
-
+@login_required
 def add_purchases(request):
+    """
+    Добавляет рецепт в покупки
+    """
     if request.method == "POST":
         recipe_id = int(json.loads(request.body).get('id'))
         created = ShoppingList.objects.get_or_create(
@@ -263,8 +241,11 @@ def delete_purchases(request, recipe_id):
     else:
         return JsonResponse({'success': True})
 
-
+@login_required
 def get_ingredients(request):
+    """
+    Вытягивает ингредиенты из формы
+    """
     ingredients = {}
     for key, ingredient_name in request.POST.items():
         if 'nameIngredient' in key:
@@ -274,8 +255,11 @@ def get_ingredients(request):
             )
     return ingredients
 
-
+@login_required
 def get_ingredients_js(request):
+    """
+    По первым буквам делает запрос к js и получает в ответ игредиенты начинающиеся на данные буквы
+    """
     text = request.GET.get('query')
     data = []
     ingredients = Ingredient.objects.filter(
@@ -289,6 +273,9 @@ def get_ingredients_js(request):
 
 @login_required
 def user_recipe_new(request):
+    """
+    Создание рецепта
+    """
     user = User.objects.get(username=request.user)
     form = RecipeForm(
         request.POST or None,
@@ -303,15 +290,14 @@ def user_recipe_new(request):
             recipe.author = user
             recipe.save()
             print(request.POST)
-            recipe_tags_list = request.POST.getlist('tags')
+            recipe_tags_list = request.POST.getlist('tag')
             for tag_id in recipe_tags_list:
-                tag = Tags.objects.get(id=tag_id)
-                recipe.tags.add(tag)
+                tag = Tag.objects.get(id=tag_id)
+                recipe.tag.add(tag)
 
             for ing_name, quantity in ingredients.items():
                 ingredient = get_object_or_404(Ingredient, name=ing_name)
                 IngredientIncomposition.objects.create(
-                    recipe=recipe,
                     ingredient=ingredient,
                     quantity=quantity)
             form.save_m2m()
@@ -319,14 +305,18 @@ def user_recipe_new(request):
     else:
         form = RecipeForm()
 
-    tags=Tags.objects.all()
+    tags = Tag.objects.all()
     return render(request, 'formRecipe.html', {
         'form': form,
         'tags': tags,
     })
 
+
 @login_required
 def user_recipe_edit(request, recipe_id):
+    """
+    Редактирование рецепта
+    """
 
     recipe = get_object_or_404(Recipes, id=recipe_id)
     if request.user != recipe.author:
@@ -339,25 +329,23 @@ def user_recipe_edit(request, recipe_id):
     )
     if request.method == "POST":
         ingredients = get_ingredients(request)
-        print(11111111111111111111111111111111)
         if not ingredients:
             form.add_error(None, 'Добавьте ингредиенты')
         if form.is_valid():
             form.save()
             IngredientIncomposition.objects.filter(recipes=recipe).delete()
-            print(22222222222222222222222222222222)
+
             for ing_name, quantity in ingredients.items():
                 ingredient = get_object_or_404(Ingredient, name=ing_name)
                 IngredientIncomposition.objects.create(
-                    recipe=recipe,
                     ingredient=ingredient,
                     quantity=quantity)
-            # form.save_m2m()
+
             return redirect('recipe_view', recipe_id=recipe.id)
     else:
         form = RecipeForm()
-    tags = Tags.objects.all()
-    tags_list = Tags.objects.filter(recipes=recipe)
+    tags = Tag.objects.all()
+    tags_list = Tag.objects.filter(recipes=recipe)
 
     ingredients = IngredientIncomposition.objects.filter(recipes=recipe.id)
 
@@ -366,13 +354,17 @@ def user_recipe_edit(request, recipe_id):
         'recipe': recipe,
         'tags': tags,
         'ingredients': ingredients,
-        'tags_list':tags_list
+        'tags_list': tags_list
     })
-
 
 
 @login_required
 def shopping_list(request):
+    """
+    Отрисовывает страницу покупок
+    :param request:
+    :return:
+    """
     shopping_list = ShoppingList.objects.filter(user=request.user).all()
     return render(
         request,

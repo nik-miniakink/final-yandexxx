@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from .models import Recipes
+from .models import Recipes, IngredientIncomposition
 
 class RecipeForm(ModelForm):
     class Meta:
@@ -9,3 +9,7 @@ class RecipeForm(ModelForm):
         fields = ('name', "time", "description", "image",)
 
 
+class ING(ModelForm):
+    class Meta:
+        model = IngredientIncomposition
+        fields = ('ingredient','quantity')

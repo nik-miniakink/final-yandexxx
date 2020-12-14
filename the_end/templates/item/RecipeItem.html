@@ -20,7 +20,7 @@
 
 
         <div class="card-list ">
-            {%for recipe in page%}
+            {% for recipe in page %}
                 <div class="card"data-id="{{recipe.id}}" data-author="{{recipe.author.id}}>
         {% load thumbnail %}
             {% thumbnail recipe.image "364x240" crop="center" upscale=True as im %}
@@ -33,7 +33,8 @@
 
 
                 <ul class="card__items">
-                     {% for tag in recipe.tags.all %}
+                     {% for tag in recipe.tag.all %}
+
                         <li class="card__item"><span class="badge badge_style_{{tag.style}}">{{tag.name}}</span></li>
                      {% endfor %}
                 </ul>
@@ -52,7 +53,7 @@
                         <button class="button button_style_light-blue" name="purchases" data-out>
                             <span class="icon-plus button__icon"></span>Добавить в покупки</button>
                     {% endif %}
-                    {% if request|is_shoplist:recipe.id %}
+                    {% if request|is_favorite:recipe.id %}
                         <button class="button button_style_none" name="favorites"><span class="icon-favorite icon-favorite_active"></span></button>
                     {% else %}
                         <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>

@@ -9,6 +9,7 @@
 {% csrf_token %}
 {% block content %}
 {% csrf_token %}
+{% load v1_filters %}
 <main class="main container">
         <div class="single-card" data-id="{{recipe.id}}" data-author="{{recipe.author.id}}">
             {% load thumbnail %}
@@ -21,8 +22,11 @@
                     <h1 class="single-card__title">{{ recipe.name }}</h1>
                     {% if user.is_authenticated %}
                     <div class="single-card__favorite">
-                        <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite icon-favorite_big"></span></button>
-                        <div class="single-card__favorite-tooltip tooltip">Добавить в избранное</div>
+                        {% if request|is_favorite:recipe.id %}
+                        <button class="button button_style_none" name="favorites"><span class="icon-favorite icon-favorite_active"></span></button>
+                    {% else %}
+                        <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
+                    {% endif %}
                     </div>
                     {% endif %}
                 </div>
@@ -42,7 +46,15 @@
                 </div>
                 {% if user.is_authenticated %}
                 <ul class="single-card__items">
-                    <li class="single-card__item"><button class="button button_style_blue" name="purchases" data-out><span class="icon-plus"></span> Добавить в покупки</button></li>
+                    <li class="single-card__item">
+                        {% if request|is_shoplist:recipe.id %}
+                        <button class="button button_style_light-blue-outline" name="purchases">
+                            <span class="icon-check button__icon"></span> Рецепт добавлен</button>
+                    {% else %}
+                        <button class="button button_style_light-blue" name="purchases" data-out>
+                            <span class="icon-plus button__icon"></span>Добавить в покупки</button>
+                    {% endif %}
+                    </li>
                     <li class="single-card__item"><button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>Подписаться на автора</button></li>
                 </ul>
                 {% endif %}
